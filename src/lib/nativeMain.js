@@ -60,7 +60,7 @@ function startRecord(url) {
 
   if (!ffmpegScriptLoaded()) {
     var ffmpegServer = document.createElement('script');
-    ffmpegServer.setAttribute('src', url || 'http://localhost:8080/ffmpegserver/ffmpegserver.js');
+    ffmpegServer.setAttribute('src', url || `http://${location.hostname}:8401/ffmpegserver/ffmpegserver.js`);
     ffmpegServer.onload = () => startRecord(url);
     document.head.appendChild(ffmpegServer);
     return;
@@ -71,8 +71,7 @@ function startRecord(url) {
       framerate: 60,
       verbose: true,
       name: "fieldplay",
-      extension: ".mp4",
-      codec: "mpeg4",
+      extension: ".webm",
       ffmpegArguments: [
         "-b:v", "12M",
       ],
@@ -90,6 +89,12 @@ function ffmpegScriptLoaded() {
 function stopRecord() {
   window.isRecording = false;
   bus.fire('stop-record', currentCapturer)
+  console.log('Stopping recording...');
   currentCapturer.stop();
-  currentCapturer.save();
+  console.log('Stopped. Converting to video...');
+  currentCapturer.save((outputHostedPath) => {
+    const downloadUrl = `http://${location.hostname}:8401${outputHostedPath}`;
+    console.log('Converted. Download at', downloadUrl);
+    // window.open(downloadUrl);
+  });
 }
