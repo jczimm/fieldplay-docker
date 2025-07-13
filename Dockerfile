@@ -11,7 +11,7 @@ WORKDIR /home/node
 # However, do NOT leverage bind mounts to package.json and package-lock.json, since can result in read-only-filesystem error.
 COPY package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \
-    npm install
+    npm ci --omit optional
 
 # Run the application as a non-root user.
 USER node
